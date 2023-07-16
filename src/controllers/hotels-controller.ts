@@ -1,12 +1,15 @@
 import { Response } from 'express';
 import httpStatus from 'http-status';
 import hotelsService from '../services/hotels-service';
+import { notFoundError } from '../errors';
 import { AuthenticatedRequest } from '@/middlewares';
 
 export async function getAllHotels(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
   try {
     const hotels = await hotelsService.getAllHotels(userId);
+
+    if (hotels.length === 0) throw notFoundError();
 
     return res.status(httpStatus.OK).send(hotels);
   } catch (err) {
@@ -31,6 +34,8 @@ export async function getHotelById(req: AuthenticatedRequest, res: Response) {
 
   try {
     const rooms = await hotelsService.getHotelById(userId, hotelId);
+
+    if (!rooms) throw notFoundError();
 
     return res.status(httpStatus.OK).send(rooms);
   } catch (err) {
